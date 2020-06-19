@@ -34,8 +34,7 @@ class FixDistanceExtractor:
 
     def get_fix(self):
         """
-        Returns the list of bug-fix commits and the list of the
-        corresponding commits.
+        Returns the list of bug-fix commits.
         """
         fix_list = []
         cmt_list = []
@@ -56,8 +55,10 @@ class FixDistanceExtractor:
                 cmt_list.append(line.strip()[7:30].split(" ")[0])
 
         return fix_list, cmt_list
-
+    
 
 if __name__ == "__main__":
-    extractor = FixDistanceExtractor("/home/ytliu/linux-next/fs", "v4.4")
+    extractor = FixDistanceExtractor("/root/linux-next", "v4.4")
     fl, cl = extractor.get_fix()
+    print(len(fl))
+    print(len(cl))
