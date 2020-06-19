@@ -55,7 +55,7 @@ class FixDistanceExtractor:
                 cmt_list.append(line.strip()[7:30].split(" ")[0])
 
         return fix_list, cmt_list
-    
+
 
 if __name__ == "__main__":
     extractor = FixDistanceExtractor("/root/linux-next", "v4.4")
