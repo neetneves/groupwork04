@@ -9,17 +9,19 @@ import os
 import re
 from subprocess import Popen, PIPE
 import unicodedata
-
+import csv
 
 
 filelist = []
 path = "D:/linux-next"
 
+
 for root, dirs, files in os.walk(path):
     for file in files:
         (filename, extension) = os.path.splitext(file)
         if extension == ".c":
-            filelist.append(root.replace("D:/linux-next\\", "") + '' + file)
+            filelist.append(root.replace("D:/linux-next\\", "").replace('\\', '/') + '/' + file)
+
 
 def gitFixCommits(kernelRange, repo, fileName):
     commit = re.compile('^commit [0-9a-z]{40}$', re.IGNORECASE)
@@ -47,21 +49,16 @@ def gitFixCommits(kernelRange, repo, fileName):
     except ZeroDivisionError:
 
         fixes_percent = 0
-
-#    if total_commits != 0:
-#        fixes_percent = (nr_fixes / total_commits) * 100
-#        count += 1
-        
+       
     print('fixes_percent:'+str(fixes_percent))
     return fixes_percent
 
-
-    
-
-
 if __name__ == '__main__':
-    for j in range(len(filelist)):
-        gitFixCommits('v3.0..HEAD', 'D:/linux-next', filelist[j])
-        print(filelist[j])
-        
+    with open('data.csv','a',newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['fixes_percent','path']) 
+        for j in range(len(filelist)):
+            writer.writerow([str(gitFixCommits('v3.0..HEAD', 'D:/linux-next', filelist[j])),filelist[j]]) #同时写入多行信息
+            print(filelist[j],'\n')
+    print('ok!')
         
