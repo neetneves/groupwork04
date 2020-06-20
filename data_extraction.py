@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Get data for bug-fix distance analysis of linux kernel subsystems.
 -------------------------------------------------------------------
@@ -8,11 +10,16 @@ get bug-fix distance of subsystems in repo linux-next;
 
 FeatureAddExtractor:
 get the development speed of features;
+
+BugDensityExtractor:
+get the bug density of one file in the subsystem specified
+
+
 """
-__author__ = "Liu Yutian"
+__author__ = "Group04"
 __copyright__ = "Copyright 2020, Lanzhou University"
 __credits__ = ["Group04"]
-__license__ = "MIT"
+__license__ = "GPL V3"
 __version__ = "1.0"
 __maintainer__ = "Liu Yutian"
 __email__ = "ytliu18@lzu.edu.cn"
@@ -60,11 +67,19 @@ class FixDistanceExtractor:
 
 
 class FeatureAddExtractor:
+    """
+    Parameters:
+    subsys: The subsystem at file level;
+    range: The range of system version's sublevels, such as 'v4.9..v4.9.216'.
+    """
     def __init__(self, subsys, range):
         self.subsys = subsys
         self.range = range
 
     def get_feature(self):
+        """
+        Returns the list of commits that add new features.
+        """
         cmt_list = []
 
         cmd = ["git", "log", "--oneline", self.range, self.subsys]
@@ -80,6 +95,9 @@ class FeatureAddExtractor:
         return cmt_list
 
     def get_time(self, cmt_list):
+        """
+        Returns the list of difference of time between every features are added.
+        """
         time_list = []
         diff_list = []
 
@@ -103,11 +121,20 @@ class FeatureAddExtractor:
 
 
 class BugDensityExtractor:
+    """
+    Parameters:
+    subsys: The subsystem at file level;
+    range: The range of system version's sublevels, such as 'v4.9..v4.9.216'.
+    """
     def __init__(self, subsys, range):
         self.subsys = subsys
         self.range = range
 
     def get_density(self, file_name):
+        """
+        Returns the ratio of number of commits with fix tag
+        to the number of commits in total.
+        """
         commits = re.compile("^commit [0-9a-z]{40}$", re.IGNORECASE)
         fixes = re.compile("^\W+Fixes: [a-f0-9]{8,40} \(.*\)$", re.IGNORECASE)
         nr_fixes = 0
