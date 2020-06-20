@@ -21,7 +21,7 @@ def get_feature_num(git_cmd):
     """
     cnt = 0
     counts = git_cmd.communicate()[0]
-    cnt = re.findall('feature', str(counts))  # By using regular expression to define "features".
+    cnt = re.findall('add feature', str(counts))  # By using regular expression to define "features".
     return len(cnt)
 
 
