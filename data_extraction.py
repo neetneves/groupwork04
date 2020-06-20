@@ -102,8 +102,37 @@ class FeatureAddExtractor:
         return diff_list
 
 
+class BugDensityExtractor:
+    def __init__(self, subsys, range):
+        self.subsys = subsys
+        self.range = range
+
+    def get_density(self, file_name):
+        commits = re.compile("^commit [0-9a-z]{40}$", re.IGNORECASE)
+        fixes = re.compile("^\W+Fixes: [a-f0-9]{8,40} \(.*\)$", re.IGNORECASE)
+        nr_fixes = 0
+        total_commits = 0
+
+        cmd = ["git", "log", "-p", "--no-merges", "--date-order", self.range, file_name]
+        p = Popen(cmd, cwd=self.subsys, stdout=PIPE)
+        data = p.communicate()[0]
+        data = unicodedata.normalize(u'NFKD', data.decode(encoding="utf-8", errors="ignore"))
+
+        for line in data.split("\n"):
+            if commits.match(line):
+                total_commits += 1
+            if fixes.match(line):
+                nr_fixes += 1
+
+        try:
+            fixes_percent = (nr_fixes / total_commits) * 100
+        except ZeroDivisionError:
+            fixes_percent = 0
+
+        return fixes_percent
+
+
 if __name__ == "__main__":
-    extractor = FeatureAddExtractor("/home/ytliu/linux-next/fs", "v4.4")
-    cmt_list = extractor.get_feature()
-    diff_list = extractor.get_time(cmt_list)
-    print(diff_list)
+    extractor = BugDensityExtractor("/home/ytliu/linux-next/fs", "v4.4")
+    bug_density = extractor.get_density("/home/ytliu/linux-next/fs/afs/cache.c")
+    print(bug_density)
