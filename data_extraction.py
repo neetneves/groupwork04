@@ -37,7 +37,8 @@ class FixDistanceExtractor:
     subsys: The subsystem at file level;
     range: The range of system version's sublevels, such as 'v4.9..v4.9.216'.
     """
-    def __init__(self, subsys, range):
+    def __init__(self, repo, subsys, range):
+        self.repo = repo
         self.subsys = subsys
         self.range = range
 
@@ -49,7 +50,7 @@ class FixDistanceExtractor:
         cmt_list = []
 
         cmd = ["git", "log", "-P", "--no-merges", self.range, self.subsys]
-        p = Popen(cmd, cwd=self.subsys, stdout=PIPE)
+        p = Popen(cmd, cwd=self.repo, stdout=PIPE)
         data = p.communicate()[0]
         # Clean and normalize the data.
         data = unicodedata.normalize(u"NFKD", data.decode(encoding="utf-8", errors="ignore"))
@@ -72,7 +73,8 @@ class FeatureAddExtractor:
     subsys: The subsystem at file level;
     range: The range of system version's sublevels, such as 'v4.9..v4.9.216'.
     """
-    def __init__(self, subsys, range):
+    def __init__(self, repo, subsys, range):
+        self.repo = repo
         self.subsys = subsys
         self.range = range
 
@@ -83,7 +85,7 @@ class FeatureAddExtractor:
         cmt_list = []
 
         cmd = ["git", "log", "--oneline", self.range, self.subsys]
-        p = Popen(cmd, cwd=self.subsys, stdout=PIPE)
+        p = Popen(cmd, cwd=self.repo, stdout=PIPE)
         data = p.communicate()[0]
         # Clean and normalize the data.
         data = unicodedata.normalize(u"NFKD", data.decode(encoding="utf-8", errors="ignore"))
@@ -103,7 +105,7 @@ class FeatureAddExtractor:
 
         for cmt in cmt_list:
             cmd = ["git", "log", "-1", '--pretty=format:\"%ct\"', cmt]
-            p = Popen(cmd, cwd=self.subsys, stdout=PIPE)
+            p = Popen(cmd, cwd=self.repo, stdout=PIPE)
             data = p.communicate()[0]
             data = unicodedata.normalize(u"NFKD", data.decode(encoding="utf-8", errors="ignore"))
             time_list.append(int(data.strip('"')))
@@ -126,8 +128,8 @@ class BugDensityExtractor:
     subsys: The subsystem at file level;
     range: The range of system version's sublevels, such as 'v4.9..v4.9.216'.
     """
-    def __init__(self, subsys, range):
-        self.subsys = subsys
+    def __init__(self, repo, range):
+        self.repo = repo
         self.range = range
 
     def get_density(self, file_name):
@@ -141,7 +143,7 @@ class BugDensityExtractor:
         total_commits = 0
 
         cmd = ["git", "log", "-p", "--no-merges", "--date-order", self.range, file_name]
-        p = Popen(cmd, cwd=self.subsys, stdout=PIPE)
+        p = Popen(cmd, cwd=self.repo, stdout=PIPE)
         data = p.communicate()[0]
         data = unicodedata.normalize(u'NFKD', data.decode(encoding="utf-8", errors="ignore"))
 
@@ -160,6 +162,10 @@ class BugDensityExtractor:
 
 
 if __name__ == "__main__":
-    extractor = BugDensityExtractor("/home/ytliu/linux-next/fs", "v4.4")
+    extractor = BugDensityExtractor("/home/ytliu/linux-next", "v4.4")
     bug_density = extractor.get_density("/home/ytliu/linux-next/fs/afs/cache.c")
     print(bug_density)
+    extractor = FeatureAddExtractor("/home/ytliu/linux-next", "fs", "v4.4")
+    cmt_list = extractor.get_feature()
+    diff_list = extractor.get_time(cmt_list)
+    print(diff_list)
