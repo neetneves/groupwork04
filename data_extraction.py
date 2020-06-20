@@ -41,9 +41,9 @@ class FixDistanceExtractor:
         fix_list = []
         cmt_list = []
 
-        cmd = ["git", "log", "-P", "--no-merges", self.range]
+        cmd = ["git", "log", "-P", "--no-merges", self.range, self.subsys]
         p = Popen(cmd, cwd=self.subsys, stdout=PIPE)
-        data, res = p.communicate()
+        data = p.communicate()[0]
         # Clean and normalize the data.
         data = unicodedata.normalize(u"NFKD", data.decode(encoding="utf-8", errors="ignore"))
 
@@ -67,9 +67,9 @@ class FeatureAddExtractor:
     def get_feature(self):
         cmt_list = []
 
-        cmd = ["git", "log", "--oneline", self.range]
+        cmd = ["git", "log", "--oneline", self.range, self.subsys]
         p = Popen(cmd, cwd=self.subsys, stdout=PIPE)
-        data, res = p.communicate()
+        data = p.communicate()[0]
         # Clean and normalize the data.
         data = unicodedata.normalize(u"NFKD", data.decode(encoding="utf-8", errors="ignore"))
 
@@ -86,7 +86,7 @@ class FeatureAddExtractor:
         for cmt in cmt_list:
             cmd = ["git", "log", "-1", '--pretty=format:\"%ct\"', cmt]
             p = Popen(cmd, cwd=self.subsys, stdout=PIPE)
-            data, res = p.communicate()
+            data = p.communicate()[0]
             data = unicodedata.normalize(u"NFKD", data.decode(encoding="utf-8", errors="ignore"))
             time_list.append(int(data.strip('"')))
 
