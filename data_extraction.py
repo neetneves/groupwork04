@@ -12,9 +12,11 @@ FeatureAddExtractor:
 get the development speed of features;
 
 BugDensityExtractor:
-get the bug density of one file in the subsystem specified
+get the bug density of one file in the subsystem specified;
 
-
+FileAddExtractor:
+get the time difference of new files' creation in the subsystem
+specified.
 """
 __author__ = "Group04"
 __copyright__ = "Copyright 2020, Lanzhou University"
@@ -26,7 +28,7 @@ __email__ = "ytliu18@lzu.edu.cn"
 __status__ = "Production"
 
 
-import re
+import re, os
 import unicodedata
 from subprocess import Popen, PIPE
 
@@ -161,11 +163,57 @@ class BugDensityExtractor:
         return fixes_percent
 
 
+class FileAddExtractor:
+    """
+    Parameters:
+    subsys: The subsystem at file level.
+    """
+    def __init__(self, subsys):
+        self.subsys = subsys
+
+    def get_file(self):
+        """
+        get the list of file name in the subsystem specified.
+        """
+        file_list = []
+        for root, dirs, files in os.walk(self.subsys):
+            for f in files:
+                file_list.append(os.path.join(self.subsys, f))
+        return file_list
+
+    def get_timediff(self, file_list):
+        """
+        get the time difference of new files' creation.
+        """
+        time_list = []
+        time_diff = []
+
+        for file_path in file_list:
+            cmd = ["git", "log", "--follow", '--pretty=format:\"%ct\"', "--reverse", file_path]
+            p = Popen(cmd,cwd=self.subsys,stdout=PIPE)
+            data = p.communicate()[0]
+            data = unicodedata.normalize(u'NFKD', data.decode(encoding="utf-8", errors="ignore"))
+            data = re.split(r'\"(.*)\"\s+', data)
+            try:
+                time_list.append(int(data[1]))
+            except IndexError:
+                pass
+
+        time_list.sort()
+        if len(time_list) == 1:
+            return None
+        if len(time_list) == 2:
+            time_diff.append(time_list[1] - time_list[0])
+        else:
+            for i in range(len(time_list) - 1):
+                time_diff.append(time_list[i + 1] - time_list[i])
+
+        return time_diff
+
+
 if __name__ == "__main__":
-    extractor = BugDensityExtractor("/home/ytliu/linux-next", "v4.4")
-    bug_density = extractor.get_density("/home/ytliu/linux-next/fs/afs/cache.c")
-    print(bug_density)
-    extractor = FeatureAddExtractor("/home/ytliu/linux-next", "fs", "v4.4")
-    cmt_list = extractor.get_feature()
-    diff_list = extractor.get_time(cmt_list)
-    print(diff_list)
+    extractor = FileAddExtractor("/home/ytliu/linux-next/fs/afs/")
+    file_list = extractor.get_file()
+    # print(file_list)
+    time_diff = extractor.get_timediff(file_list)
+    print(time_diff)
