@@ -4,30 +4,28 @@ from subprocess import Popen,PIPE
 
 
 class FileAddExtractor:
-    def __init__(self,subsys):
+    def __init__(self, subsys):
         self.subsys = subsys
-
 
     def get_file(self):
         file_list = []
-        for root,dirs,files in os.walk(self.subsys):
+        for root, dirs, files in os.walk(self.subsys):
             for f in files:
-                file_list.append(os.path.join(self.subsys,f))
+                file_list.append(os.path.join(self.subsys, f))
         return file_list
 
-    def get_timediff(self):
-
+    def get_timediff(self, file_list):
         time_list = []
         time_diff = []
 
         for file_path in file_list:
-            cmd = ["git","log" ,"--follow" ,'--pretty=format:\"%ct\"' ,"--reverse",file_path]
+            cmd = ["git","log" ,"--follow" ,'--pretty=format:\"%ct\"' ,"--reverse", file_path]
             p = Popen(cmd,cwd=self.subsys,stdout=PIPE)
             data = p.communicate()[0]
             data = unicodedata.normalize(u'NFKD',data.decode(encoding="utf-8",errors="ignore"))
-            data = re.split(r'\"(.*)\"\s+',data)
+            data = re.split(r'\"(.*)\"\s+', data)
             time_list.append(int(data[1]))
-     
+
         time_list.sort()
         if len(time_list) == 1:
             return None
@@ -41,8 +39,8 @@ class FileAddExtractor:
 
 
 if __name__ == "__main__":
-    extractor = FileAddExtractor("/home/wyc/project/linux-next/fs/adfs")
+    extractor = FileAddExtractor("/home/ytliu/linux-next/fs/afs/")
     file_list = extractor.get_file()
-    #print(file_list)
-    timediff = extractor.get_timediff()
-    print(timediff)                                       
+    # print(file_list)
+    time_diff = extractor.get_timediff(file_list)
+    print(time_diff)
