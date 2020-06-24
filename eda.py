@@ -2,7 +2,7 @@ import data_extraction
 import numpy as np
 
 
-repo = "/home/ytliu/linux-next/"
+repo = "/home/ytliu/linux-next"
 subsys = ["fs/afs/", "drivers/video/", "kernel/printk/", "net/nfc/", "tools/usb/"]
 range = "v4.4"
 file_static = {}
@@ -15,7 +15,7 @@ for sname in subsys:
     dl = extractor.get_time(cl)
     feature_static[sname] = np.mean(dl)
 
-    extractor = data_extraction.FileAddExtractor(sname)
+    extractor = data_extraction.FileAddExtractor(repo + sname)
     fl = extractor.get_file()
     td = extractor.get_timediff(fl)
     file_static[sname] = np.mean(td)
