@@ -2,7 +2,7 @@ import data_extraction
 import numpy as np
 
 
-repo = "/home/ytliu/linux-next"
+repo = "/home/ytliu/linux-next/"
 subsys = ["fs/afs/", "drivers/video/", "kernel/printk/", "net/nfc/", "tools/usb/"]
 range = "v4.4"
 file_static = {}
