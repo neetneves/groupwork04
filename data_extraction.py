@@ -189,7 +189,7 @@ class FileAddExtractor:
         time_diff = []
 
         for file_path in file_list:
-            cmd = ["git", "log", "--follow", '--pretty=format:\"%ct\"', "--reverse", file_path]
+            cmd = ["git", "log", "--follow", '--pretty=format:\"%ct\"', "--reverse", "--", file_path]
             p = Popen(cmd,cwd=self.subsys,stdout=PIPE)
             data = p.communicate()[0]
             data = unicodedata.normalize(u'NFKD', data.decode(encoding="utf-8", errors="ignore"))

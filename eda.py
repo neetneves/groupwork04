@@ -15,7 +15,7 @@ for sname in subsys:
     dl = extractor.get_time(cl)
     feature_static[sname] = np.std(dl)
 
-    extractor = data_extraction.FileAddExtractor(sname)
+    extractor = data_extraction.FileAddExtractor(repo + sname)
     fl = extractor.get_file()
     td = extractor.get_timediff(fl)
     file_static[sname] = np.std(td)
