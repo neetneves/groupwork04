@@ -93,7 +93,7 @@ class FeatureAddExtractor:
         data = unicodedata.normalize(u"NFKD", data.decode(encoding="utf-8", errors="ignore"))
 
         for line in data.split("\n"):
-            if (re.findall("feature", str(line))):
+            if (re.findall("add feature", str(line))):
                 cmt_list.append(line[0:11])
 
         return cmt_list
