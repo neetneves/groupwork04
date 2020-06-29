@@ -1,0 +1,4 @@
+We think 18 bins may be the best. 
+To begin, we first remove the bins values (K=9/K=10) obtained by Using Stourges' Rule (K=9/K=10)
+And the diff time between PATCHLEVEL had better be about 100 ~200.
+We think we should take 24 hours as a day, when the number of bins is relatively small, the number of days is not clearly separated, and when the number of bins is too many, the observation cannot be made in one day. So we are going to take the medium.
